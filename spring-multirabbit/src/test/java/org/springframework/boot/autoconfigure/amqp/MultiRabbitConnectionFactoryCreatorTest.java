@@ -56,6 +56,8 @@ class MultiRabbitConnectionFactoryCreatorTest {
 
     @Mock
     private ObjectProvider<ConnectionFactoryCustomizer> connectionFactoryCustomizer;
+    @Mock
+    private ObjectProvider<MultiListenerContainerFactoryCustomizer> customizers;
 
     @Mock
     private ConnectionFactory connectionFactory0;
@@ -119,7 +121,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
                 .thenReturn(new CachingConnectionFactory());
 
         assertTrue(creator().routingConnectionFactory(rabbitProperties, multiRabbitProperties, externalWrapper,
-                resourceLoader, credentialsProvider, credentialsRefreshService, connectionNameStrategy,
+                resourceLoader, credentialsProvider, credentialsRefreshService, connectionNameStrategy, customizers,
                 connectionFactoryCustomizer)
                 instanceof RoutingConnectionFactory);
     }
@@ -132,7 +134,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
 
         final ConnectionFactory routingConnectionFactory = creator().routingConnectionFactory(rabbitProperties,
                 multiRabbitProperties, externalWrapper, resourceLoader, credentialsProvider,
-                credentialsRefreshService, connectionNameStrategy, connectionFactoryCustomizer);
+                credentialsRefreshService, connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         assertTrue(routingConnectionFactory instanceof SimpleRoutingConnectionFactory);
         verify(beanFactory).registerSingleton(DUMMY_KEY, containerFactory);
@@ -149,7 +151,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
 
         final ConnectionFactory routingConnectionFactory = creator().routingConnectionFactory(rabbitProperties,
                 multiRabbitProperties, externalWrapper, resourceLoader, credentialsProvider,
-                credentialsRefreshService, connectionNameStrategy, connectionFactoryCustomizer);
+                credentialsRefreshService, connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         assertTrue(routingConnectionFactory instanceof SimpleRoutingConnectionFactory);
         verifyNoMoreInteractions(beanFactory);
@@ -172,7 +174,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
 
         final ConnectionFactory routingConnectionFactory = creator().routingConnectionFactory(rabbitProperties,
                 multiRabbitProperties, externalWrapper, resourceLoader, credentialsProvider, credentialsRefreshService,
-                connectionNameStrategy, connectionFactoryCustomizer);
+                connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         assertTrue(routingConnectionFactory instanceof SimpleRoutingConnectionFactory);
         verify(beanFactory).registerSingleton(DUMMY_KEY, containerFactory);
@@ -189,7 +191,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
         externalWrapper.addConnectionFactory(DUMMY_KEY, connectionFactory1, containerFactory, rabbitAdmin);
 
         creator().routingConnectionFactory(rabbitProperties, multiRabbitProperties, externalWrapper, resourceLoader,
-                credentialsProvider, credentialsRefreshService, connectionNameStrategy,
+                credentialsProvider, credentialsRefreshService, connectionNameStrategy, customizers,
                 connectionFactoryCustomizer).getVirtualHost();
 
         verify(connectionFactory0).getVirtualHost();
@@ -204,7 +206,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
 
         ConnectionFactory routingConnectionFactory = creator().routingConnectionFactory(rabbitProperties,
                 multiRabbitProperties, externalWrapper, resourceLoader, credentialsProvider, credentialsRefreshService,
-                connectionNameStrategy, connectionFactoryCustomizer);
+                connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         SimpleResourceHolder.bind(routingConnectionFactory, DUMMY_KEY);
         routingConnectionFactory.getVirtualHost();
@@ -227,7 +229,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
                 .thenReturn(new CachingConnectionFactory());
 
         assertNotNull(creator().routingConnectionFactory(rabbitProperties, null, externalWrapper,
-                resourceLoader, credentialsProvider, credentialsRefreshService, connectionNameStrategy,
+                resourceLoader, credentialsProvider, credentialsRefreshService, connectionNameStrategy, customizers,
                 connectionFactoryCustomizer));
     }
 
@@ -251,7 +253,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
         multiRabbitProperties.setDefaultConnection(DUMMY_KEY);
 
         creator().routingConnectionFactory(null, multiRabbitProperties, externalWrapper, resourceLoader,
-                credentialsProvider, credentialsRefreshService, connectionNameStrategy, connectionFactoryCustomizer);
+                credentialsProvider, credentialsRefreshService, connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         verify(springFactoryCreator).rabbitConnectionFactory(springFactoryCreator
                         .rabbitConnectionFactoryBeanConfigurer(secondaryRabbitProperties, resourceLoader,
@@ -282,7 +284,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
         multiRabbitProperties.getConnections().put(DUMMY_KEY, secondaryRabbitProperties);
 
         creator().routingConnectionFactory(rabbitProperties, multiRabbitProperties, externalWrapper, resourceLoader,
-                credentialsProvider, credentialsRefreshService, connectionNameStrategy, connectionFactoryCustomizer);
+                credentialsProvider, credentialsRefreshService, connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         verify(springFactoryCreator).rabbitConnectionFactory(
                 rabbitConnectionFactoryBeanConfigurer,
@@ -311,7 +313,7 @@ class MultiRabbitConnectionFactoryCreatorTest {
         final Executable executable = () -> creator().routingConnectionFactory(rabbitProperties,
                 multiRabbitProperties,
                 externalWrapper, resourceLoader, credentialsProvider, credentialsRefreshService,
-                connectionNameStrategy, connectionFactoryCustomizer);
+                connectionNameStrategy, customizers, connectionFactoryCustomizer);
 
         assertThrows(Exception.class, executable, "mocked-exception");
     }
